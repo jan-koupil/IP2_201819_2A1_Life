@@ -20,15 +20,18 @@ const mapView = {
 		const viewMap = document.getElementById("map");
 
 		this.cells = [];
-		for (let i = 0; i < mapHeight; i++) {
+		for (let y = 0; y < mapHeight; y++) {
 			const row = document.createElement("tr");
 			viewMap.appendChild(row);
-			this.cells[i] = [];
+			this.cells[y] = [];
 
-			for (let j = 0; j < mapWidth; j++) {
+			for (let x = 0; x < mapWidth; x++) {
 				const cell = document.createElement("td");
 				row.appendChild(cell);
-				this.cells[i][j] = cell; //store reference to cell
+				this.cells[y][x] = cell; //store reference to cell
+				cell.addEventListener("click", function(evt){
+					console.log(y,x);
+				});
 			}
 		}
 	},
