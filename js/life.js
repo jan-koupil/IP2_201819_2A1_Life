@@ -49,6 +49,19 @@ const mapView = {
 	}
 };
 
+const controlView = {
+	initialize: function() {
+		const startBtn = document.createElement("button");
+		startBtn.innerText = "Start";
+		startBtn.addEventListener("click", function(){controller.startStop();});
+		document.getElementById("controls").appendChild(startBtn);
+	},
+
+	render: function() {
+
+	}
+};
+
 /**
  * Keeps all app data at one place
  */
@@ -95,14 +108,16 @@ const controller = {
      * @param {Object} mapView - The map view
      * @param {Object} model - The data model
      */
-	initialize: function(mapHeight, mapWidth, mapView, model) {
+	initialize: function(mapHeight, mapWidth, mapView, ctrlView, model) {
         // store data
         this.model = model;
 		this.mapView = mapView;
+		this.ctrlView = ctrlView;
 		this.mapHeight = mapHeight;
 		this.mapWidth = mapWidth;
 
 		this.mapView.initialize(mapWidth, mapHeight);
+		this.ctrlView.initialize();
 		this.model.initialize(this.createEmptyMap());
 
         // render initial state
@@ -177,11 +192,26 @@ const controller = {
 		if (this.model.getCellState(x  ,y+1)) count++;
 		if (this.model.getCellState(x+1,y+1)) count++;
 		return count;
+	},
+
+	intervalRef: null, // reference to setInterval
+
+	startStop: function() {
+		// if not running, start
+		if (!this.intervalRef) {
+			this.intervalRef = setInterval(
+				function(){controller.iterate();},
+				500
+			);			
+		} else {
+			clearInterval(this.intervalRef);
+			this.intervalRef = null;
+		}
 	}
 };
 
 window.addEventListener("DOMContentLoaded", function() {
-	controller.initialize(mapHeight, mapHeight, mapView, model);
+	controller.initialize(mapHeight, mapHeight, mapView, controlView, model);
 	// setInterval(
 	// 	function(){controller.iterate();},
 	// 	2500
