@@ -1,5 +1,5 @@
-const mapWidth = 4;
-const mapHeight = 4;
+const mapWidth = 25;
+const mapHeight = 25;
 
 /**
  * Controls rendering the map area
@@ -29,6 +29,9 @@ const mapView = {
 				const cell = document.createElement("td");
 				row.appendChild(cell);
 				this.cells[y][x] = cell; //store reference to cell
+				cell.addEventListener("click", function(){
+					controller.changeCellState(x,y);
+				});
 			}
 		}
 	},
@@ -74,7 +77,11 @@ const model = {
 			// temporary solution
 			return false; // outside the map, all cells are dead
 		}
-	}
+	},
+
+	setCellState: function(x, y, state) {
+		this.cells[y][x] = state;
+	}	
 };
 
 /**
@@ -95,19 +102,30 @@ const controller = {
 		this.mapHeight = mapHeight;
 		this.mapWidth = mapWidth;
 
-		let map = [
-			[true, false, false, true],
-			[true, false, true, true],
-			[false, false, false, true],
-			[true, true, true, true]
-		];
-
 		this.mapView.initialize(mapWidth, mapHeight);
-		this.model.initialize(map);
+		this.model.initialize(this.createEmptyMap());
 
         // render initial state
 		this.mapView.render(this.model.cells);
-    },
+	},
+	
+	createEmptyMap: function() {
+		const map = [];
+		for (let y = 0; y < this.mapHeight; y++) {
+			map[y] = [];
+			for (let x = 0; x < this.mapWidth; x++) {
+				map[y][x] = false;
+			}
+		}
+		return map;
+	},	
+
+	changeCellState: function(x,y) {
+		// change state in the model
+		this.model.setCellState(x, y, !this.model.getCellState(x,y));
+		// render
+		this.mapView.render(this.model.cells);
+	},
     
     /**
      * Calculates next state from current state
@@ -164,8 +182,8 @@ const controller = {
 
 window.addEventListener("DOMContentLoaded", function() {
 	controller.initialize(mapHeight, mapHeight, mapView, model);
-	setInterval(
-		function(){controller.iterate();},
-		2500
-	);
+	// setInterval(
+	// 	function(){controller.iterate();},
+	// 	2500
+	// );
 });
