@@ -29,9 +29,6 @@ const mapView = {
 				const cell = document.createElement("td");
 				row.appendChild(cell);
 				this.cells[y][x] = cell; //store reference to cell
-				cell.addEventListener("click", function(evt){
-					console.log(y,x);
-				});
 			}
 		}
 	},
