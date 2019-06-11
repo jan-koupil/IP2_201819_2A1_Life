@@ -1,0 +1,15 @@
+#map {
+    border-collapse: collapse;
+    margin-top: 1em;
+}
+
+#map td {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border: 1px solid #c0c0c0;
+}
+
+#map td.isAlive {
+    background-color: black;
+}
