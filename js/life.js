@@ -41,19 +41,11 @@ const mapView = {
 		for (let y = 0; y < cellMap.length; y++) {
 			for (let x = 0; x < cellMap[y].length; x++) {
 				this.cells[y][x].classList.toggle("isAlive", cellMap[y][x]);
-                
-                /* kód níže dělá to samé */
-                
-                // const cellTd = this.cells[y][x];
-				// const isAlive = cellMap[y][x];
-				// if (isAlive)
-				//     cellTd.classList.add("isAlive");
-				// else
-				//     cellTd.classList.remove("isAlive");
 			}
 		}
 	}
 };
+
 /**
  * Keeps all app data at one place
  */
@@ -75,7 +67,7 @@ const model = {
      * @param {number} y - y-coordinate
      * @returns {boolean} cell status
      */
-	getCell: function(x, y) {
+	getCellState: function(x, y) {
 		try {
 			return this.cells[y][x];
 		} catch (e) {
@@ -122,21 +114,58 @@ const controller = {
      * @returns {Array.Array.<boolean>} Next generation of cells
      */
 	getNextState: function() {
-		return [[]];
-    },
+		const nextState = [];
+		for (let y = 0; y < this.mapHeight; y++) {
+			nextState[y] = [];
+			for (let x = 0; x < this.mapWidth; x++) {
+				nextState[y][x] = this.isAlive(
+					this.model.getCellState(x,y),
+					this.neighbourCount(x,y)
+				);
+			}
+		}
+		return nextState;
+	},
+	
+	iterate() {
+		this.model.cells = this.getNextState();
+		this.mapView.render(this.model.cells);
+	},
     
     /**
      * Calculates if cell will be alive in the next generation
+	 * @param {boolean} currentState - Currently dead or alive
      * @param {number} neighbourCount - Number of alive neighbours
-     * @returns {boolean} Dead(F) or alive(T)
+     * @returns {boolean} dead(F) or alive(T)
      */
-	isAlive: function(neighbourCount) {
-        return false;
-    }
+	isAlive: function(currentState, neighbourCount) {
+        if (!currentState) {
+			// dead cell with exactly 3 neighbours is alive again
+			return neighbourCount === 3; 
+		} else {
+			// alive cells survive only with 2 or 3 neighbours
+			return neighbourCount === 2 || neighbourCount === 3; 
+		}
+	},
+	
+	neighbourCount: function(x,y) {
+		let count = 0;
+		if (this.model.getCellState(x-1,y-1)) count++;
+		if (this.model.getCellState(x  ,y-1)) count++;
+		if (this.model.getCellState(x+1,y-1)) count++;
+		if (this.model.getCellState(x-1,y  )) count++;
+		if (this.model.getCellState(x+1,y  )) count++;
+		if (this.model.getCellState(x-1,y+1)) count++;
+		if (this.model.getCellState(x  ,y+1)) count++;
+		if (this.model.getCellState(x+1,y+1)) count++;
+		return count;
+	}
 };
 
 window.addEventListener("DOMContentLoaded", function() {
-	mapView.initialize(mapWidth, mapHeight);
-
-	mapView.render(map);
+	controller.initialize(mapHeight, mapHeight, mapView, model);
+	setInterval(
+		function(){controller.iterate();},
+		2500
+	);
 });
